@@ -12,6 +12,6 @@ When the first iteration is complete, it will include the ability to backup serv
 - Cloud Object Storage
 
 ### Prerequisites
-[IBM Cloud CLI (>= 0.18.0)](https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started)
+[IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started) (>= 0.18.0)
 
-[Python3] (https://www.python.org/downloads/)
+[Python3](https://www.python.org/downloads/)
