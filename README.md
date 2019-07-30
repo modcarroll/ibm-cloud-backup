@@ -11,6 +11,6 @@ When the first iteration is complete, it will include the ability to backup serv
 - Watson Assistant
 - Cloud Object Storage
 
-### Install the IBM Cloud CLI
-
-This tool uses certain IBM Cloud CLI commands, so you will need to install a set of IBM Cloud developer tools. See [here](https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started) for directions.
+### Prerequisites
+[IBM Cloud CLI (>= 0.18.0)](https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started)
+[Python3] (https://www.python.org/downloads/)
