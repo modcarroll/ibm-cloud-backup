@@ -2,6 +2,7 @@ import json
 import ibm_watson
 from dotenv import load_dotenv
 import os
+from datetime import date
 
 load_dotenv()
 
@@ -9,6 +10,7 @@ load_dotenv()
 wa_version = os.getenv("wa_version")
 wa_apikey = os.getenv("wa_apikey")
 wa_url = os.getenv("wa_url")
+today = date.today()
 
 # Begin backup
 print("Starting Watson Assistant backup...")
@@ -35,8 +37,10 @@ for id in all_wrkspc_ids:
             workspace_id=id,
             export='true'
         ).get_result()
-        wa_output_file = open("wa_workspace_" + id + ".json","w+")
+        wa_output_file = open("wa_workspace_" + id + str(today) + ".json","w+")
         wa_output_file.write(json.dumps(workspace_response))
         wa_output_file.close()
     except ApiException as ex:
         print("Method failed with status code " + str(ex.code) + ": " + ex.message)
+
+# Todo: Entities, Intents, Credentials maybe
