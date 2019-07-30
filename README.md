@@ -25,5 +25,9 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 [python-dotenv](https://pypi.org/project/python-dotenv/)
 
 
-### To Run...
-`python3 IBM_Cloud_Backups.py`
+### To Run
+1.) Rename `example.env` to `.env`
+
+2.) Add your service credentials to the .env file.
+
+3.) Run `python3 IBM_Cloud_Backups.py`
