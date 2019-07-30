@@ -22,7 +22,8 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 
 [Python3](https://www.python.org/downloads/)
 
-[python-dotenv package](pip3 install python-dotenv)
+[python-dotenv](https://pypi.org/project/python-dotenv/)
+
 
 ### To Run...
 `python3 IBM_Cloud_Backups.py`
