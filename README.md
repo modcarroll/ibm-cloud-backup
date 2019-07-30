@@ -1,9 +1,11 @@
 # IBM Cloud Backup Tool
 
-A Python script to backup data from specific IBM Cloud services. If you are interested in having functionality for another service, please open a pull request.
+A Python script to backup data from specific IBM Cloud services. If you are interested in having functionality for another service, please create a pull request.
 
 :heart: -> To do
+
 :yellow_heart: -> In progress
+
 :green_heart: -> Complete
 
 This tool is a work-in-progress. When the first iteration is complete, it will include the ability to backup services from:
@@ -20,7 +22,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 
 [Python3](https://www.python.org/downloads/)
 
-[python-dotenv](pip3 install python-dotenv)
+[python-dotenv package](pip3 install python-dotenv)
 
 ### To Run...
 `python3 IBM_Cloud_Backups.py`
