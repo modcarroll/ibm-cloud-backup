@@ -6,6 +6,7 @@ import os
 from datetime import date
 import shutil
 import threading
+import time
 
 load_dotenv()
 
@@ -20,6 +21,8 @@ disc_url = os.getenv("disc_url")
 disc_environment = os.getenv("disc_environment")
 
 today = date.today()
+
+os.mkdir('./backups')
 
 #################################
 # Functions needed to assist
@@ -98,19 +101,13 @@ def all_document_ids(discovery,
 # Watson Assistant backup
 #################################
 print("Starting Watson Assistant backup...")
+start_time = time.time()
 
 assistant_service=ibm_watson.AssistantV1(
     version = wa_version,
     iam_apikey = wa_apikey,
     url = wa_url
 )
-
-assistant_path = "./assistant"
-# os.mkdir(assistant_path)
-
-if os.path.exists(assistant_path):
-    shutil.rmtree(assistant_path)
-os.mkdir(assistant_path)
 
 # Get all workspace IDs
 try:
@@ -126,37 +123,54 @@ for space in list_wrkspc_response:
 
 # In each workspace save workspace files, intents, and entities
 for id in all_wrkspc_ids:
+    assistant_path = "./backups/assistant"+ id + "_" + str(today)
+    if os.path.exists(assistant_path):
+        shutil.rmtree(assistant_path)
+    os.mkdir(assistant_path)
+
+    workspace_response = []
+    intents_response = []
+    entities_response = []
+
     try:
         workspace_response = assistant_service.get_workspace(
             workspace_id = id,
             export='true'
         ).get_result()
-        completePath = os.path.join(assistant_path, "wa_workspace_" + id + str(today) + ".json")
-        workspace_file = open(completePath, "w")
-        workspace_file.write(json.dumps(workspace_response))
-        workspace_file.close()
 
         intents_response = assistant_service.list_intents(
             workspace_id = id
         ).get_result()
-        completePath = os.path.join(assistant_path, "wa_intents" + id + str(today) + ".json")
-        intents_file = open(completePath, "w")
-        intents_file.write(json.dumps(intents_response))
-        intents_file.close()
 
         entities_response = assistant_service.list_entities(
             workspace_id = id
         ).get_result()
-        completePath = os.path.join(assistant_path, "wa_entities_" + id + str(today) + ".json")
+    except ApiException as ex:
+        print("Method failed with status code " + str(ex.code) + ": " + ex.message)
+
+    try:
+        completePath = os.path.join(assistant_path, "wa_workspace_" + id + ".json")
+        workspace_file = open(completePath, "w")
+        workspace_file.write(json.dumps(workspace_response))
+        workspace_file.close()
+
+        completePath = os.path.join(assistant_path, "wa_intents_" + id + ".json")
+        intents_file = open(completePath, "w")
+        intents_file.write(json.dumps(intents_response))
+        intents_file.close()
+
+        completePath = os.path.join(assistant_path, "wa_entities_" + id + ".json")
         entities_file = open(completePath, "w")
         entities_file.write(json.dumps(entities_response))
         entities_file.close()
 
         print("Workspace " + id + " done.")
-    except ApiException as ex:
-        print("Method failed with status code " + str(ex.code) + ": " + ex.message)
+    except Exception as e:
+        print("Exception occured: " + e.message)
 
-print("Completed Watson Assistant backup.")
+end = time.time()
+elapsed = end - start_time
+print("Completed Watson Assistant backup in " + str(elapsed) + " seconds.")
 ######## End Watson Assistant Backup ########
 
 #################################
@@ -165,6 +179,7 @@ print("Completed Watson Assistant backup.")
 # This script will loop through every collection in the given instance and save each document. If you only want a specific collection to be backed up, remove the outer loop.
 
 print("Beginning Discovery backup...")
+start_time = time.time()
 
 discovery_service = ibm_watson.DiscoveryV1(
     version=disc_version,
@@ -174,13 +189,37 @@ discovery_service = ibm_watson.DiscoveryV1(
 
 environments = discovery_service.list_environments().get_result()
 environmentId = environments["environments"][1]["environment_id"]
+allCollections = discovery_service.list_collections(environmentId).get_result()['collections']
 
-# get all collection IDs, then loop through
-# allDocIds = all_document_ids(discovery_service, environmentId, collectionId)
+for collection in allCollections:
+    collectionId = collection['collection_id']
+    print("Backing up collection " + collectionId + "...")
+    allDocIds = all_document_ids(discovery_service, environmentId, collectionId)
 
+    discovery_path = "./backups/discovery" + "_" + collectionId + "_" + str(today)
+    if os.path.exists(discovery_path):
+        shutil.rmtree(discovery_path)
+    os.mkdir(discovery_path)
 
+    for documentId in allDocIds:
+        filterId = '_id:' + documentId
+        try:
+            discQuery = discovery_service.query(environmentId, collectionId, filter=filterId).get_result()['results'][0]
+        except ApiException as ex:
+            print("Discovery query failed with status code " + str(ex.code) + ": " + ex.message)
+        try:
+            completePath = os.path.join(discovery_path, "discovery_" + documentId + ".json")
+            discovery_file = open(completePath, "w")
+            discovery_file.write(json.dumps(discQuery))
+            discovery_file.close()
+            print("documentId " + documentId + " successfully saved.")
+        except Exception as e:
+            print("Exception occured: " + e.message)
 
-# Create a new folder for each collection
-# environments = discovery_service.list_environments().get_result()
+    print("Collection " + collectionId + " successfully backed up.")
+
+end = time.time()
+elapsed = end - start_time
+print("Completed Discovery backup in " + str(elapsed) + " seconds.")
 
 ######## End Discovery Backup ########
