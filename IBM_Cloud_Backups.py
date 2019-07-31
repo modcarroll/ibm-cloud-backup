@@ -7,6 +7,7 @@ from datetime import date
 import shutil
 import threading
 import time
+import datetime
 
 load_dotenv()
 
@@ -22,11 +23,14 @@ disc_environment = os.getenv("disc_environment")
 
 today = date.today()
 
-os.mkdir('./backups')
+base_directory = './backups' + datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
+os.mkdir(base_directory)
 
-#################################
-# Functions needed to assist
-#################################
+############################################
+# This section provides functions needed to
+# get all document IDs from a given
+# Discovery collection
+############################################
 def pmap_helper(fn, output_list, input_list, i):
     output_list[i] = fn(input_list[i])
 
@@ -46,25 +50,11 @@ def pmap(fn, input):
 def all_document_ids(discovery,
                      environmentId,
                      collectionId):
-    """
-    Return a list of all of the document ids found in a
-    Watson Discovery collection.
-
-    The arguments to this function are:
-    discovery      - an instance of DiscoveryV1
-    environment_id - an environment id found in your Discovery instance
-    collection_id  - a collection id found in the environment above
-    """
     doc_ids = []
-    alphabet = "0123456789abcdef"   # Hexadecimal digits, lowercase
+    alphabet = "0123456789abcdef"
     chunk_size = 10000
 
     def maybe_some_ids(prefix):
-        """
-        A helper function that does the query and returns either:
-        1) A list of document ids
-        2) The `prefix` that needs to be subdivided into more focused queries
-        """
         need_results = True
         while need_results:
             try:
@@ -96,10 +86,11 @@ def all_document_ids(discovery,
                 prefixes_to_process.append(result)
 
     return doc_ids
+############################################
 
-#################################
+############################################
 # Watson Assistant backup
-#################################
+############################################
 print("Starting Watson Assistant backup...")
 start_time = time.time()
 
@@ -121,9 +112,8 @@ for space in list_wrkspc_response:
     print("Backing up Workspace "+ space['workspace_id'] + "...")
     all_wrkspc_ids.append(space['workspace_id'])
 
-# In each workspace save workspace files, intents, and entities
 for id in all_wrkspc_ids:
-    assistant_path = "./backups/assistant"+ id + "_" + str(today)
+    assistant_path = base_directory + "/assistant"+ id
     if os.path.exists(assistant_path):
         shutil.rmtree(assistant_path)
     os.mkdir(assistant_path)
@@ -149,17 +139,17 @@ for id in all_wrkspc_ids:
         print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
     try:
-        completePath = os.path.join(assistant_path, "wa_workspace_" + id + ".json")
+        completePath = os.path.join(assistant_path, "workspace_" + id + ".json")
         workspace_file = open(completePath, "w")
         workspace_file.write(json.dumps(workspace_response))
         workspace_file.close()
 
-        completePath = os.path.join(assistant_path, "wa_intents_" + id + ".json")
+        completePath = os.path.join(assistant_path, "intents_" + id + ".json")
         intents_file = open(completePath, "w")
         intents_file.write(json.dumps(intents_response))
         intents_file.close()
 
-        completePath = os.path.join(assistant_path, "wa_entities_" + id + ".json")
+        completePath = os.path.join(assistant_path, "entities_" + id + ".json")
         entities_file = open(completePath, "w")
         entities_file.write(json.dumps(entities_response))
         entities_file.close()
@@ -168,14 +158,14 @@ for id in all_wrkspc_ids:
     except Exception as e:
         print("Exception occured: " + e.message)
 
-end = time.time()
-elapsed = end - start_time
+end_time = time.time()
+elapsed = end_time - start_time
 print("Completed Watson Assistant backup in " + str(elapsed) + " seconds.")
 ######## End Watson Assistant Backup ########
 
-#################################
+############################################
 # Discovery Backup
-#################################
+############################################
 # This script will loop through every collection in the given instance and save each document. If you only want a specific collection to be backed up, remove the outer loop.
 
 print("Beginning Discovery backup...")
@@ -196,10 +186,23 @@ for collection in allCollections:
     print("Backing up collection " + collectionId + "...")
     allDocIds = all_document_ids(discovery_service, environmentId, collectionId)
 
-    discovery_path = "./backups/discovery" + "_" + collectionId + "_" + str(today)
+    discovery_path = base_directory + "/discovery" + "_" + collectionId
     if os.path.exists(discovery_path):
         shutil.rmtree(discovery_path)
     os.mkdir(discovery_path)
+
+    try:
+        training_data = discovery_service.list_training_data(environmentId, collectionId).get_result()
+    except ApiException as ex:
+        print("Discovery query failed with status code " + str(ex.code) + ": " + ex.message)
+    try:
+        completePath = os.path.join(discovery_path, "_trainingdata.json")
+        discovery_file = open(completePath, "w")
+        discovery_file.write(json.dumps(training_data))
+        discovery_file.close()
+        print("Training data for " + collectionId + " successfully saved.")
+    except Exception as e:
+        print("Exception occured: " + e.message)
 
     for documentId in allDocIds:
         filterId = '_id:' + documentId
@@ -208,7 +211,7 @@ for collection in allCollections:
         except ApiException as ex:
             print("Discovery query failed with status code " + str(ex.code) + ": " + ex.message)
         try:
-            completePath = os.path.join(discovery_path, "discovery_" + documentId + ".json")
+            completePath = os.path.join(discovery_path, "document" + documentId + ".json")
             discovery_file = open(completePath, "w")
             discovery_file.write(json.dumps(discQuery))
             discovery_file.close()
@@ -218,8 +221,12 @@ for collection in allCollections:
 
     print("Collection " + collectionId + " successfully backed up.")
 
-end = time.time()
-elapsed = end - start_time
+end_time = time.time()
+elapsed = end_time - start_time
 print("Completed Discovery backup in " + str(elapsed) + " seconds.")
 
 ######## End Discovery Backup ########
+
+############################################
+#
+############################################
