@@ -12,7 +12,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 - Kubernetes Clusters :heart:
 - App ID :heart:
 - Databases for PostgreSQL :heart:
-- Discovery :yellow_heart: (Documents) >> Please note, this section may take quite some time depending on how many documents and collections you have.
+- Discovery :green_heart: (Documents from every collection) >> Please note, this section may take quite some time depending on how many documents and collections you have.
 - MongoDB :heart:
 - Watson Assistant :green_heart: (Workspace, Entities, Intents)
 - Cloud Object Storage :heart:
