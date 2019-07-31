@@ -8,14 +8,16 @@ A Python script to backup data from specific IBM Cloud services. If you are inte
 
 :green_heart: -> Complete
 
-This tool is a work-in-progress. When the first iteration is complete, it will include the ability to backup services from:
+This tool is a work-in-progress. When the first iteration is complete, it will include the ability to backup data from the following services:
 - Kubernetes Clusters :heart:
 - App ID :heart:
 - Databases for PostgreSQL :heart:
-- Discovery :yellow_heart:
+- Discovery :yellow_heart: (Documents) >> Please note, this section may take quite some time depending on how many documents and collections you have.
 - MongoDB :heart:
-- Watson Assistant :green_heart:
+- Watson Assistant :green_heart: (Workspace, Entities, Intents)
 - Cloud Object Storage :heart:
+
+Please keep in mind that with Data and AI services, training data is not saved.
 
 ### Prerequisites
 [IBM Cloud CLI](https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started) (>= 0.18.0)
