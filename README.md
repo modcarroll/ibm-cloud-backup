@@ -33,3 +33,6 @@ Please keep in mind that with Data and AI services, training data is not saved.
 2.) Add your service credentials to the .env file.
 
 3.) Run `python3 IBM_Cloud_Backups.py`
+
+### Disclaimer
+This code is provided as-is and IBM assumes no responsibility for it.
