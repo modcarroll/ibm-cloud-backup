@@ -14,7 +14,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 - Cloud Object Storage :green_heart: (contents in every bucket)
 - Kubernetes Clusters :heart:
 - App ID :heart:
-- Databases for PostgreSQL :heart:
+- Databases for PostgreSQL :yellow_heart:
 - Databases for MongoDB :heart:
 
 ## Setup
