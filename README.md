@@ -17,7 +17,6 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 - Databases for PostgreSQL :heart:
 - Databases for MongoDB :heart:
 
-------
 ## Setup
 
 ### Dependencies:
@@ -35,8 +34,6 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 3.) Add your service credentials to the .env file.
 
 4.) Run `python3 IBM_Cloud_Backups.py`
-
-------
 
 ## Important notes:
 
