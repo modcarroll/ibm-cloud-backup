@@ -13,7 +13,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 - App ID :heart:
 - Databases for PostgreSQL :heart:
 - Discovery :green_heart: (documents from all collections, training data) >> Please note, this section may take quite some time depending on how many documents and collections you have.
-- MongoDB :heart:
+- MongoDB :yellow_heart:
 - Watson Assistant :green_heart: (workspaces, entities, intents)
 - Cloud Object Storage :heart:
 
