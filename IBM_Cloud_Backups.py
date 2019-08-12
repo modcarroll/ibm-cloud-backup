@@ -8,6 +8,9 @@ import shutil
 import threading
 import time
 import datetime
+from pymongo import MongoClient
+import ibm_boto3
+from ibm_botocore.client import Config, ClientError
 
 load_dotenv()
 
@@ -20,6 +23,13 @@ disc_version = os.getenv("disc_version")
 disc_apikey = os.getenv("disc_apikey")
 disc_url = os.getenv("disc_url")
 disc_environment = os.getenv("disc_environment")
+# Cloud Object Storage credentials
+cos_apikey = os.getenv("cos_apikey")
+cos_secret = os.getenv("cos_secret")
+cos_endpoint = os.getenv("cos_endpoint")
+cos_auth_endpoint = os.getenv("cos_auth_endpoint")
+cos_resource_crn = os.getenv("cos_resource_crn")
+
 
 today = date.today()
 
@@ -91,76 +101,79 @@ def all_document_ids(discovery,
 ############################################
 # Watson Assistant backup
 ############################################
-print("Starting Watson Assistant backup...")
-start_time = time.time()
+if(wa_version == '' or wa_apikey == '' or wa_url == ''):
+    print("No Watson Assistant credentials detected. Skipping.")
+else:
+    print("Starting Watson Assistant backup...")
+    start_time = time.time()
 
-assistant_service=ibm_watson.AssistantV1(
-    version = wa_version,
-    iam_apikey = wa_apikey,
-    url = wa_url
-)
+    assistant_service=ibm_watson.AssistantV1(
+        version = wa_version,
+        iam_apikey = wa_apikey,
+        url = wa_url
+    )
 
-# Get all workspace IDs
-try:
-    list_wrkspc_response = assistant_service.list_workspaces().get_result()['workspaces']
-    all_wrkspc_ids = []
-except ApiException as ex:
-    print("Method failed with status code " + str(ex.code) + ": " + ex.message)
-
-print("Getting workspace IDs...")
-for space in list_wrkspc_response:
-    print("Backing up Workspace "+ space['workspace_id'] + "...")
-    all_wrkspc_ids.append(space['workspace_id'])
-
-for id in all_wrkspc_ids:
-    assistant_path = base_directory + "/assistant"+ id
-    if os.path.exists(assistant_path):
-        shutil.rmtree(assistant_path)
-    os.mkdir(assistant_path)
-
-    workspace_response = []
-    intents_response = []
-    entities_response = []
-
+    # Get all workspace IDs
     try:
-        workspace_response = assistant_service.get_workspace(
-            workspace_id = id,
-            export='true'
-        ).get_result()
-
-        intents_response = assistant_service.list_intents(
-            workspace_id = id
-        ).get_result()
-
-        entities_response = assistant_service.list_entities(
-            workspace_id = id
-        ).get_result()
+        list_wrkspc_response = assistant_service.list_workspaces().get_result()['workspaces']
+        all_wrkspc_ids = []
     except ApiException as ex:
         print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
-    try:
-        completePath = os.path.join(assistant_path, "workspace_" + id + ".json")
-        workspace_file = open(completePath, "w")
-        workspace_file.write(json.dumps(workspace_response))
-        workspace_file.close()
+    print("Getting workspace IDs...")
+    for space in list_wrkspc_response:
+        print("Backing up Workspace "+ space['workspace_id'] + "...")
+        all_wrkspc_ids.append(space['workspace_id'])
 
-        completePath = os.path.join(assistant_path, "intents_" + id + ".json")
-        intents_file = open(completePath, "w")
-        intents_file.write(json.dumps(intents_response))
-        intents_file.close()
+    for id in all_wrkspc_ids:
+        assistant_path = base_directory + "/assistant"+ id
+        if os.path.exists(assistant_path):
+            shutil.rmtree(assistant_path)
+        os.mkdir(assistant_path)
 
-        completePath = os.path.join(assistant_path, "entities_" + id + ".json")
-        entities_file = open(completePath, "w")
-        entities_file.write(json.dumps(entities_response))
-        entities_file.close()
+        workspace_response = []
+        intents_response = []
+        entities_response = []
 
-        print("Workspace " + id + " done.")
-    except Exception as e:
-        print("Exception occured: " + e.message)
+        try:
+            workspace_response = assistant_service.get_workspace(
+                workspace_id = id,
+                export='true'
+            ).get_result()
 
-end_time = time.time()
-elapsed = end_time - start_time
-print("Completed Watson Assistant backup in " + str(elapsed) + " seconds.")
+            intents_response = assistant_service.list_intents(
+                workspace_id = id
+            ).get_result()
+
+            entities_response = assistant_service.list_entities(
+                workspace_id = id
+            ).get_result()
+        except ApiException as ex:
+            print("Method failed with status code " + str(ex.code) + ": " + ex.message)
+
+        try:
+            completePath = os.path.join(assistant_path, "workspace_" + id + ".json")
+            workspace_file = open(completePath, "w")
+            workspace_file.write(json.dumps(workspace_response))
+            workspace_file.close()
+
+            completePath = os.path.join(assistant_path, "intents_" + id + ".json")
+            intents_file = open(completePath, "w")
+            intents_file.write(json.dumps(intents_response))
+            intents_file.close()
+
+            completePath = os.path.join(assistant_path, "entities_" + id + ".json")
+            entities_file = open(completePath, "w")
+            entities_file.write(json.dumps(entities_response))
+            entities_file.close()
+
+            print("Workspace " + id + " done.")
+        except Exception as e:
+            print("Exception occured: " + e.message)
+
+    end_time = time.time()
+    elapsed = end_time - start_time
+    print("Completed Watson Assistant backup in " + str(elapsed) + " seconds.")
 ######## End Watson Assistant Backup ########
 
 ############################################
@@ -168,65 +181,103 @@ print("Completed Watson Assistant backup in " + str(elapsed) + " seconds.")
 ############################################
 # This script will loop through every collection in the given instance and save each document. If you only want a specific collection to be backed up, remove the outer loop.
 
-print("Beginning Discovery backup...")
-start_time = time.time()
+if(disc_version == '' or disc_apikey == '' or disc_url == ''):
+    print("No Discovery credentials detected. Skipping.")
+else:
+    print("Beginning Discovery backup...")
+    start_time = time.time()
 
-discovery_service = ibm_watson.DiscoveryV1(
-    version=disc_version,
-    iam_apikey=disc_apikey,
-    url=disc_url
-)
+    discovery_service = ibm_watson.DiscoveryV1(
+        version=disc_version,
+        iam_apikey=disc_apikey,
+        url=disc_url
+    )
 
-environments = discovery_service.list_environments().get_result()
-environmentId = environments["environments"][1]["environment_id"]
-allCollections = discovery_service.list_collections(environmentId).get_result()['collections']
+    environments = discovery_service.list_environments().get_result()
+    environmentId = environments["environments"][1]["environment_id"]
+    allCollections = discovery_service.list_collections(environmentId).get_result()['collections']
 
-for collection in allCollections:
-    collectionId = collection['collection_id']
-    print("Backing up collection " + collectionId + "...")
-    allDocIds = all_document_ids(discovery_service, environmentId, collectionId)
+    for collection in allCollections:
+        collectionId = collection['collection_id']
+        print("Backing up collection " + collectionId + "...")
+        allDocIds = all_document_ids(discovery_service, environmentId, collectionId)
 
-    discovery_path = base_directory + "/discovery" + "_" + collectionId
-    if os.path.exists(discovery_path):
-        shutil.rmtree(discovery_path)
-    os.mkdir(discovery_path)
+        discovery_path = base_directory + "/discovery" + "_" + collectionId
+        if os.path.exists(discovery_path):
+            shutil.rmtree(discovery_path)
+        os.mkdir(discovery_path)
 
-    try:
-        training_data = discovery_service.list_training_data(environmentId, collectionId).get_result()
-    except ApiException as ex:
-        print("Discovery query failed with status code " + str(ex.code) + ": " + ex.message)
-    try:
-        completePath = os.path.join(discovery_path, "_trainingdata.json")
-        discovery_file = open(completePath, "w")
-        discovery_file.write(json.dumps(training_data))
-        discovery_file.close()
-        print("Training data for " + collectionId + " successfully saved.")
-    except Exception as e:
-        print("Exception occured: " + e.message)
-
-    for documentId in allDocIds:
-        filterId = '_id:' + documentId
         try:
-            discQuery = discovery_service.query(environmentId, collectionId, filter=filterId).get_result()['results'][0]
+            training_data = discovery_service.list_training_data(environmentId, collectionId).get_result()
         except ApiException as ex:
             print("Discovery query failed with status code " + str(ex.code) + ": " + ex.message)
         try:
-            completePath = os.path.join(discovery_path, "document" + documentId + ".json")
+            completePath = os.path.join(discovery_path, "_trainingdata.json")
             discovery_file = open(completePath, "w")
-            discovery_file.write(json.dumps(discQuery))
+            discovery_file.write(json.dumps(training_data))
             discovery_file.close()
-            print("documentId " + documentId + " successfully saved.")
+            print("Training data for " + collectionId + " successfully saved.")
         except Exception as e:
             print("Exception occured: " + e.message)
 
-    print("Collection " + collectionId + " successfully backed up.")
+        for documentId in allDocIds:
+            filterId = '_id:' + documentId
+            try:
+                discQuery = discovery_service.query(environmentId, collectionId, filter=filterId).get_result()['results'][0]
+            except ApiException as ex:
+                print("Discovery query failed with status code " + str(ex.code) + ": " + ex.message)
+            try:
+                completePath = os.path.join(discovery_path, "document" + documentId + ".json")
+                discovery_file = open(completePath, "w")
+                discovery_file.write(json.dumps(discQuery))
+                discovery_file.close()
+                print("documentId " + documentId + " successfully saved.")
+            except Exception as e:
+                print("Exception occured: " + e.message)
 
-end_time = time.time()
-elapsed = end_time - start_time
-print("Completed Discovery backup in " + str(elapsed) + " seconds.")
+        print("Collection " + collectionId + " successfully backed up.")
+
+    end_time = time.time()
+    elapsed = end_time - start_time
+    print("Completed Discovery backup in " + str(elapsed) + " seconds.")
 
 ######## End Discovery Backup ########
 
 ############################################
-#
+# Cloud Object Storage
 ############################################
+if(cos_apikey == '' or cos_resource_crn == '' or cos_auth_endpoint == '' or cos_endpoint == ''):
+    print("No COS credentials detected. Skipping.")
+else:
+    cos = ibm_boto3.resource("s3",
+        ibm_api_key_id=cos_apikey,
+        ibm_service_instance_id=cos_resource_crn,
+        ibm_auth_endpoint=cos_auth_endpoint,
+        config=Config(signature_version="oauth"),
+        endpoint_url=cos_endpoint
+    )
+
+    try:
+        buckets = cos.buckets.all()
+    except Exception as e:
+        print("Unable to retrieve buckets: {0}".format(e))
+
+    for bucket in buckets:
+        print("Backing up Bucket {0}...".format(bucket.name))
+        cos_path = base_directory + "/cos" + "_" + bucket.name
+        if os.path.exists(cos_path):
+            shutil.rmtree(cos_path)
+        os.mkdir(cos_path)
+        try:
+            files = cos.Bucket(bucket.name).objects.all()
+        except Exeception as e:
+            print("Unable to get objects in bucket: {0}".format(e))
+        for file in files:
+            try:
+                fileName = file.key.replace("/", "-")
+                completePath = os.path.join(cos_path, fileName)
+                downloadedFile = cos.meta.client.download_file(bucket.name,  file.key, completePath)
+            except Exception as e:
+                print("Exception occured: ")
+                print(e)
+        print("Bucket {0} backup complete.".format(bucket.name))
