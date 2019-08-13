@@ -102,7 +102,7 @@ def all_document_ids(discovery,
 # Watson Assistant backup
 ############################################
 if(wa_version == '' or wa_apikey == '' or wa_url == ''):
-    print("No Watson Assistant credentials detected. Skipping.")
+    print("No or invalid Watson Assistant credentials detected. Skipping.")
 else:
     print("Starting Watson Assistant backup...")
     start_time = time.time()
@@ -182,7 +182,7 @@ else:
 # This script will loop through every collection in the given instance and save each document. If you only want a specific collection to be backed up, remove the outer loop.
 
 if(disc_version == '' or disc_apikey == '' or disc_url == ''):
-    print("No Discovery credentials detected. Skipping.")
+    print("No or invalid Discovery credentials detected. Skipping.")
 else:
     print("Beginning Discovery backup...")
     start_time = time.time()
@@ -247,7 +247,7 @@ else:
 # Cloud Object Storage
 ############################################
 if(cos_apikey == '' or cos_resource_crn == '' or cos_auth_endpoint == '' or cos_endpoint == ''):
-    print("No COS credentials detected. Skipping.")
+    print("No or invalid COS credentials detected. Skipping.")
 else:
     cos = ibm_boto3.resource("s3",
         ibm_api_key_id=cos_apikey,
