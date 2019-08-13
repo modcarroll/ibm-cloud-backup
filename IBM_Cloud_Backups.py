@@ -33,7 +33,8 @@ cos_resource_crn = os.getenv("cos_resource_crn")
 
 today = date.today()
 
-base_directory = './backups' + datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
+base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+
 os.mkdir(base_directory)
 
 ############################################
@@ -126,7 +127,7 @@ else:
         all_wrkspc_ids.append(space['workspace_id'])
 
     for id in all_wrkspc_ids:
-        assistant_path = base_directory + "/assistant"+ id
+        assistant_path = base_directory + "/assistant_"+ id
         if os.path.exists(assistant_path):
             shutil.rmtree(assistant_path)
         os.mkdir(assistant_path)
@@ -202,7 +203,7 @@ else:
         print("Backing up collection " + collectionId + "...")
         allDocIds = all_document_ids(discovery_service, environmentId, collectionId)
 
-        discovery_path = base_directory + "/discovery" + "_" + collectionId
+        discovery_path = base_directory + "/discovery_" + collectionId
         if os.path.exists(discovery_path):
             shutil.rmtree(discovery_path)
         os.mkdir(discovery_path)
@@ -231,7 +232,6 @@ else:
                 discovery_file = open(completePath, "w")
                 discovery_file.write(json.dumps(discQuery))
                 discovery_file.close()
-                print("documentId " + documentId + " successfully saved.")
             except Exception as e:
                 print("Exception occured: " + e.message)
 
@@ -264,7 +264,7 @@ else:
 
     for bucket in buckets:
         print("Backing up Bucket {0}...".format(bucket.name))
-        cos_path = base_directory + "/cos" + "_" + bucket.name
+        cos_path = base_directory + "/cos_" + bucket.name
         if os.path.exists(cos_path):
             shutil.rmtree(cos_path)
         os.mkdir(cos_path)

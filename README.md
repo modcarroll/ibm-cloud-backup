@@ -15,7 +15,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 - Kubernetes Clusters :heart:
 - App ID :heart:
 - Databases for PostgreSQL :heart:
-- Databases for MongoDB :heart:
+- Databases for MongoDB :yellow_heart:
 
 ## Setup
 
@@ -27,7 +27,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 
 
 ### To Run:
-1.) Install prerequisites.
+1.) Install prerequisites (Python packages)
 
 2.) Rename `example.env` to `.env`
 
@@ -44,7 +44,9 @@ If you want to run this tool only for a subset of the listed services, simply le
 
 If you get a timeout error for MongoDB, you may need to add your IP address to the Whitelist on the settings tab of the Databses for MongoDB service.
 
-Issues will arise if you don't use pymongo version 3.4.0. To install, `pip install pymongo==3.4.0` or `pip3 install pymongo==3.4.0`
+Issues will arise if you don't use pymongo version 3.4.0. To install, `pip3 install pymongo==3.4.0` or `pip3 install pymongo==3.4.0`
+
+Quite a few python packages are used in this application. While all of them may not be listed here, if you try and run the program but get a `ModuleNotFound` error, simply install the package it specifies. I recommend using pip3, which is already installed with Python3.
 
 ------
 
