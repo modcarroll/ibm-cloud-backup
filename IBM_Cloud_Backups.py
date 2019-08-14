@@ -1,16 +1,16 @@
 import json
 import ibm_watson
-from ibm_watson import ApiException
-from dotenv import load_dotenv
 import os
-from datetime import date
 import shutil
 import threading
 import time
 import datetime
-from pymongo import MongoClient
 import ibm_boto3
 from ibm_botocore.client import Config, ClientError
+from datetime import date
+from pymongo import MongoClient
+from ibm_watson import ApiException
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -29,9 +29,6 @@ cos_secret = os.getenv("cos_secret")
 cos_endpoint = os.getenv("cos_endpoint")
 cos_auth_endpoint = os.getenv("cos_auth_endpoint")
 cos_resource_crn = os.getenv("cos_resource_crn")
-
-
-today = date.today()
 
 base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
 
