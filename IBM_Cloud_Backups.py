@@ -6,6 +6,7 @@ import threading
 import time
 import datetime
 import ibm_boto3
+import pandas
 from ibm_botocore.client import Config, ClientError
 from datetime import date
 from pymongo import MongoClient
@@ -32,6 +33,8 @@ cos_resource_crn = os.getenv("cos_resource_crn")
 
 base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
 
+if os.path.exists(base_directory):
+    shutil.rmtree(dir)
 os.mkdir(base_directory)
 
 ############################################
@@ -136,15 +139,17 @@ else:
         try:
             workspace_response = assistant_service.get_workspace(
                 workspace_id = id,
-                export='true'
+                export=True
             ).get_result()
 
             intents_response = assistant_service.list_intents(
-                workspace_id = id
+                workspace_id = id,
+                export=True
             ).get_result()
 
             entities_response = assistant_service.list_entities(
-                workspace_id = id
+                workspace_id = id,
+                export=True
             ).get_result()
         except ApiException as ex:
             print("Method failed with status code " + str(ex.code) + ": " + ex.message)
@@ -155,14 +160,36 @@ else:
             workspace_file.write(json.dumps(workspace_response))
             workspace_file.close()
 
-            completePath = os.path.join(assistant_path, "intents_" + id + ".json")
+            intents = intents_response['intents']
+            intentsCSV = ''
+            for intent in intents:
+                intent_name = intent['intent']
+                for example in intent['examples']:
+                    intentsCSV += example['text'] + ',' + intent_name + '\n'
+
+            completePath = os.path.join(assistant_path, "intents_" + id + ".csv")
             intents_file = open(completePath, "w")
-            intents_file.write(json.dumps(intents_response))
+            intents_file.write(intentsCSV)
             intents_file.close()
 
-            completePath = os.path.join(assistant_path, "entities_" + id + ".json")
+            entities = entities_response['entities']
+            entitiesCSV = ''
+            for entity in entities:
+                entity_name = entity['entity']
+                for value in entity['values']:
+                    entitiesCSV += entity_name + ','
+                    entitiesCSV += value['value'] + ','
+                    if value['type'] == 'synonyms':
+                        if len(value['synonyms']) > 0:
+                            for synonym in value['synonyms']:
+                                entitiesCSV += synonym + ','
+                    if value['type'] == 'patterns':
+                        entitiesCSV += '/' + value['patterns'][0] + '/'
+                    entitiesCSV += '\n'
+
+            completePath = os.path.join(assistant_path, "entities_" + id + ".csv")
             entities_file = open(completePath, "w")
-            entities_file.write(json.dumps(entities_response))
+            entities_file.write(entitiesCSV)
             entities_file.close()
 
             print("Workspace " + id + " done.")
