@@ -40,6 +40,8 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 
 Please keep in mind that with Data and AI services, training data is not saved.
 
+The entities, intents, and workspace files for Watson Assistant are downloaded in a format that allows you to upload them back into Watson Assistant as-is if needed.
+
 If you want to run this tool only for a subset of the listed services, simply leave the credentials for all the other services BLANK.
 
 If you get a timeout error for MongoDB, you may need to add your IP address to the Whitelist on the settings tab of the Databses for MongoDB service.
