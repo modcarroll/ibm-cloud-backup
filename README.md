@@ -53,4 +53,4 @@ Quite a few python packages are used in this application. While all of them may 
 
 ## License
 
-[GNU General Public License] (https://www.gnu.org/licenses/gpl-3.0.en.html)
+[GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html)
