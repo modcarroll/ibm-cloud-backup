@@ -49,8 +49,6 @@ Issues will arise if you don't use pymongo version 3.4.0. To install, `pip insta
 
 Quite a few python packages are used in this application. While all of them may not be listed here, if you try and run the program but get a `ModuleNotFound` error, simply install the package it specifies. I recommend using pip3, which is already installed with Python3.
 
-------
-
 ## License
 
 [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html)
