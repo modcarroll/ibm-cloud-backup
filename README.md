@@ -51,5 +51,6 @@ Quite a few python packages are used in this application. While all of them may 
 
 ------
 
-### Disclaimer
-This code is provided as-is and IBM assumes no responsibility for it.
+## License
+
+[GNU General Public License] (https://www.gnu.org/licenses/gpl-3.0.en.html)
