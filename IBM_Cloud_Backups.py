@@ -7,6 +7,7 @@ import time
 import datetime
 import ibm_boto3
 import pandas
+import requests
 from ibm_botocore.client import Config, ClientError
 from datetime import date
 from pymongo import MongoClient
@@ -30,8 +31,12 @@ cos_secret = os.getenv("cos_secret")
 cos_endpoint = os.getenv("cos_endpoint")
 cos_auth_endpoint = os.getenv("cos_auth_endpoint")
 cos_resource_crn = os.getenv("cos_resource_crn")
+# App ID credentials
+appid_region = os.getenv("appid_region")
+appid_tenantId = os.getenv("appid_tenantId")
+appid_apikey = os.getenv("appid_apikey")
 
-base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 if os.path.exists(base_directory):
     shutil.rmtree(dir)
@@ -204,8 +209,7 @@ else:
 ############################################
 # Discovery Backup
 ############################################
-# This script will loop through every collection in the given instance and save each document. If you only want a specific collection to be backed up, remove the outer loop.
-
+# This script will loop through every collection in the given instance and save each document. If you only want a specific collection to be backed up, remove the outer loop, for collection in allCollections, and specify the collectionId
 if(disc_version == '' or disc_apikey == '' or disc_url == ''):
     print("No or invalid Discovery credentials detected. Skipping.")
 else:
@@ -305,3 +309,4 @@ else:
                 print("Exception occured: ")
                 print(e)
         print("Bucket {0} backup complete.".format(bucket.name))
+######## End Cloud Object Storage Backup ########
