@@ -13,8 +13,7 @@ This tool is a work-in-progress. When the first iteration is complete, it will i
 - Discovery :green_heart: (documents from all collections, training data) >> Please note, this section may take quite some time depending on how many documents and collections you have.
 - Cloud Object Storage :green_heart: (contents in every bucket)
 - App ID :yellow_heart:
-- Databases for PostgreSQL :heart:
-- Databases for MongoDB :heart:
+
 
 ## Setup
 
