@@ -159,6 +159,7 @@ else:
             workspace_file.close()
 
             intents = intents_response['intents']
+            print(intents)
             intentsCSV = ''
             for intent in intents:
                 intent_name = intent['intent']
