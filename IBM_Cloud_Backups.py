@@ -9,9 +9,6 @@ import ibm_boto3
 import pandas
 from ibm_botocore.client import Config, ClientError
 from ibm_watson import ApiException
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # Watson Assistant credentials
 wa_version = os.getenv("wa_version")
@@ -159,7 +156,6 @@ else:
             workspace_file.close()
 
             intents = intents_response['intents']
-            print(intents)
             intentsCSV = ''
             for intent in intents:
                 intent_name = intent['intent']
@@ -184,6 +180,7 @@ else:
                                 entitiesCSV += synonym + ','
                     if value['type'] == 'patterns':
                         entitiesCSV += '/' + value['patterns'][0] + '/'
+                    entitiesCSV = entitiesCSV.rstrip(',')
                     entitiesCSV += '\n'
 
             completePath = os.path.join(assistant_path, "entities_" + id + ".csv")
@@ -292,7 +289,7 @@ else:
         os.mkdir(cos_path)
         try:
             files = cos.Bucket(bucket.name).objects.all()
-        except Exeception as e:
+        except Exception as e:
             print("Unable to get objects in bucket: {0}".format(e))
         for file in files:
             try:
