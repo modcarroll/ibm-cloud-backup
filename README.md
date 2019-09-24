@@ -29,7 +29,7 @@ Please keep in mind that with Data and AI services, most training data is not sa
 
 The entities, intents, and workspace files for Watson Assistant are downloaded in a format that allows you to upload them back into Watson Assistant as-is if needed.
 
-If you want to run this tool only for a subset of the listed services, simply leave the credentials for all the other services BLANK.
+If you want to run this tool only for a subset of the listed services, delete the credential block(s) for the service(s) that you do not want to backup. Detailed instructions are written as comments in the code.
 
 Quite a few python packages are used in this application. While all of them may not be listed here, if you try and run the program but get a `ModuleNotFound` error, simply install the package it specifies. I recommend using pip3, which is already installed with Python3.
 

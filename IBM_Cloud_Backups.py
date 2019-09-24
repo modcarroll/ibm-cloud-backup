@@ -23,17 +23,23 @@ cos_credentials = ''
 # Add as many sets of credentials as you would like
 # If you do not want to backup a service, delete the credentials.
 
-# Watson Assistant creds
+####### Watson Assistant creds #######
+# Delete this block if you do not want to backup Assistant
 wa_credentials = [{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'},
                   {'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
+#################################################
 
-# Watson Discovery creds
+####### Watson Discovery creds #######
+# Delete this block if you do not want to backup Discovery
 disc_credentials = [{'disc_version':'yyyy-mm-dd', 'disc_apikey':'123mykey', 'disc_url':'https://something.com/something'},
                     {'disc_version':'yyyy-mm-dd', 'disc_apikey':'123mykey', 'disc_url':'https://something.com/something'}]
+#################################################
 
-# Cloud Object Storage creds
+####### Cloud Object Storage creds block ######
+# Delete this block if you do not want to backup COS
 cos_credentials = [{'cos_apikey':'cos-apikey', 'cos_endpoint':'https://something.cloud/something', 'cos_auth_endpoint':'https://iam.something.com', 'cos_resource_crn':'crn:something-123-abc::'},
 {'cos_apikey':'cos-apikey', 'cos_endpoint':'https://something.cloud/something', 'cos_auth_endpoint':'https://iam.something.com', 'cos_resource_crn':'crn:something-123-abc::'}]
+#################################################
 
 base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
