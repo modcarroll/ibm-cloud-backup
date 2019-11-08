@@ -142,9 +142,9 @@ if wa_credentials != '':
             except ApiException as ex:
                 print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
-            print("Getting workspace IDs...")
+            print("Getting workspace/skill IDs...")
             for space in list_wrkspc_response:
-                print("Backing up Workspace "+ space['workspace_id'] + "...")
+                print("Backing up Workspace/Skill "+ space['workspace_id'] + "...")
                 all_wrkspc_ids.append(space['workspace_id'])
 
             for id in all_wrkspc_ids:
@@ -214,7 +214,7 @@ if wa_credentials != '':
                     entities_file.write(entitiesCSV)
                     entities_file.close()
 
-                    print("Workspace " + id + " done.")
+                    print("Workspace/Skill " + id + " done.")
                 except Exception as e:
                     print("Exception occured: " + e.message)
 
