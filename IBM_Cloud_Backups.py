@@ -9,6 +9,7 @@ import ibm_boto3
 import pandas
 from ibm_botocore.client import Config, ClientError
 from ibm_watson import ApiException
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
 ############################
 # Do not delete this block
@@ -26,13 +27,13 @@ cos_credentials = ''
 ####### Watson Assistant creds #######
 # Delete this block if you do not want to backup Assistant
 wa_credentials = [{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'},
-                  {'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
+{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
 #################################################
 
 ####### Watson Discovery creds #######
 # Delete this block if you do not want to backup Discovery
 disc_credentials = [{'disc_version':'yyyy-mm-dd', 'disc_apikey':'123mykey', 'disc_url':'https://something.com/something'},
-                    {'disc_version':'yyyy-mm-dd', 'disc_apikey':'123mykey', 'disc_url':'https://something.com/something'}]
+{'disc_version':'yyyy-mm-dd', 'disc_apikey':'123mykey', 'disc_url':'https://something.com/something'}]
 #################################################
 
 ####### Cloud Object Storage creds block ######
@@ -125,11 +126,14 @@ if wa_credentials != '':
             print("Starting Watson Assistant backup...")
             start_time = time.time()
 
+            authenticator = IAMAuthenticator(wa_apikey)
+
             assistant_service=ibm_watson.AssistantV1(
                 version = wa_version,
-                iam_apikey = wa_apikey,
-                url = wa_url
+                authenticator = authenticator
             )
+
+            assistant_service.set_service_url(wa_url);
 
             # Get all workspace IDs
             try:
@@ -235,11 +239,14 @@ if disc_credentials != '':
             print("Beginning Discovery backup...")
             start_time = time.time()
 
+            authenticator = IAMAuthenticator(disc_apikey)
+
             discovery_service = ibm_watson.DiscoveryV1(
                 version=disc_version,
-                iam_apikey=disc_apikey,
-                url=disc_url
+                authenticator=authenticator
             )
+
+            discovery_service.set_service_url(disc_url)
 
             environments = discovery_service.list_environments().get_result()
             environmentId = environments["environments"][1]["environment_id"]
