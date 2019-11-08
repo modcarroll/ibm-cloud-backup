@@ -11,12 +11,13 @@ This tool includes the ability to backup data from the following services:
 ## Setup
 
 ### Dependencies:
-- [Python3](https://www.python.org/downloads/)
-- [ibm-cos-sdk](https://github.com/IBM/ibm-cos-sdk-python)
+- [Python 3.5 or greater](https://www.python.org/downloads/)
+- [IBM COS Python SDK](https://github.com/IBM/ibm-cos-sdk-python)
+- [Watson Developer Cloud Python SDK](https://pypi.org/project/ibm-watson/)
 
 
 ### To Run:
-1.) Install prerequisites (Python packages)
+1.) Install prerequisites (Python packages listed above)
 
 2.) Add your service credentials to the top of the IBM_Cloud_Backups.py file in the specified variables.
 
@@ -24,8 +25,6 @@ This tool includes the ability to backup data from the following services:
 
 
 ## Important notes:
-
-Please keep in mind that with Data and AI services, most training data is not saved.
 
 The entities, intents, and workspace files for Watson Assistant are downloaded in a format that allows you to upload them back into Watson Assistant as-is if needed.
 
