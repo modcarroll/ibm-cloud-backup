@@ -1,3 +1,5 @@
+![PyPI pyversions](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue)
+
 # IBM Cloud Backup Tool
 
 A Python script to backup data from specific IBM Cloud services. If you are interested in having functionality for another service, please create a pull request.
