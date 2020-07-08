@@ -21,7 +21,7 @@ This tool includes the ability to backup data from the following services:
 ### To Run:
 1.) Install prerequisites (Python packages listed above)
 
-2.) Add your service credentials to the top of the IBM_Cloud_Backups.py file in the specified variables. (For Cloud Object Storage, you can find your `cos_endpoint` here depending on your region: https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints
+2.) Add your service credentials to the top of the IBM_Cloud_Backups.py file in the specified variables. (For Cloud Object Storage, you can find your `cos_endpoint` here depending on your region: https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints)
 
 4.) Run `python3 IBM_Cloud_Backups.py`
 
