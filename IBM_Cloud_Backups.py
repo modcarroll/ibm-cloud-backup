@@ -26,7 +26,7 @@ cos_credentials = ''
 
 ####### Watson Assistant creds #######
 # Delete this block if you do not want to backup Assistant
-wa_credentials = [{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
+wa_credentials = [{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'},{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
 #################################################
 
 ####### Watson Discovery creds #######
