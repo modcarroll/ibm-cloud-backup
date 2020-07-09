@@ -28,7 +28,7 @@ This tool includes the ability to backup data from the following services:
 
 ## Important notes:
 
-The entities, intents, and workspace files for Watson Assistant are downloaded in a format that allows you to upload them back into Watson Assistant as-is if needed.
+The skills for Watson Assistant are downloaded in a format that allows you to upload them back into Watson Assistant as-is if needed.
 
 If you want to run this tool only for a subset of the listed services, delete the credential block(s) for the service(s) that you do not want to backup. Detailed instructions are written as comments in the code.
 
