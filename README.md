@@ -5,7 +5,7 @@
 A Python script to backup data from specific IBM Cloud services. If you are interested in having functionality for another service, please create a pull request.
 
 This tool includes the ability to backup data from the following services:
-- Watson Assistant :green_heart: (workspaces, entities, intents)
+- Watson Assistant :green_heart: (skills, logs)
 - Discovery :green_heart: (documents from all collections, training data) >> Please note, this section may take quite some time depending on how many documents and collections you have.
 - Cloud Object Storage :green_heart: (contents in every bucket)
 
