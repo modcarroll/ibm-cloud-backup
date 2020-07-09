@@ -8,6 +8,7 @@ This tool includes the ability to backup data from the following services:
 - Watson Assistant :green_heart: (skills, logs)
 - Discovery :green_heart: (documents from all collections, training data) >> Please note, this section may take quite some time depending on how many documents and collections you have.
 - Cloud Object Storage :green_heart: (contents in every bucket)
+- DB2 (Coming soon!)
 
 
 ## Setup
