@@ -26,8 +26,7 @@ cos_credentials = ''
 
 ####### Watson Assistant creds #######
 # Delete this block if you do not want to backup Assistant
-wa_credentials = [{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'},
-{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
+wa_credentials = [{'wa_version':'yyyy-mm-dd', 'wa_apikey':'123mykey', 'wa_url':'https://something.com/something'}]
 #################################################
 
 ####### Watson Discovery creds #######
@@ -43,7 +42,7 @@ cos_credentials = [{'cos_apikey':'cos-apikey', 'cos_endpoint':'https://s3.some-r
 {'cos_apikey':'cos-apikey', 'cos_endpoint':'https://s3.some-region.cloud-object-storage.appdomain.cloud', 'cos_auth_endpoint':'https://iam.cloud.ibm.com/oidc/token', 'cos_resource_crn':'crn:something-123-abc::'}]
 #################################################
 
-base_directory = './ibmcloud-backups-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+base_directory = './ibmcloud-backup-' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 if os.path.exists(base_directory):
     shutil.rmtree(dir)
@@ -139,85 +138,43 @@ if wa_credentials != '':
             # Get all workspace IDs
             try:
                 list_wrkspc_response = assistant_service.list_workspaces().get_result()['workspaces']
-                all_wrkspc_ids = []
             except ApiException as ex:
                 print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
-            print("Getting workspace/skill IDs...")
+            print("Beginning Watson Assistant backup...")
+            print()
             for space in list_wrkspc_response:
-                print("Backing up Workspace/Skill "+ space['workspace_id'] + "...")
-                all_wrkspc_ids.append(space['workspace_id'])
-
-            for id in all_wrkspc_ids:
-                assistant_path = base_directory + "/assistant_"+ id
-                if os.path.exists(assistant_path):
-                    shutil.rmtree(assistant_path)
-                os.mkdir(assistant_path)
+                print()
+                print("--> "+ space['name'] + " <--")
 
                 workspace_response = []
-                intents_response = []
-                entities_response = []
+                log_response = []
 
                 try:
+                    print("Downloading skill and logs...")
                     workspace_response = assistant_service.get_workspace(
-                        workspace_id = id,
+                        workspace_id = space['workspace_id'],
                         export=True
                     ).get_result()
 
-                    intents_response = assistant_service.list_intents(
-                        workspace_id = id,
-                        export=True
-                    ).get_result()
-
-                    entities_response = assistant_service.list_entities(
-                        workspace_id = id,
-                        export=True
-                    ).get_result()
-                except ApiException as ex:
-                    print("Method failed with status code " + str(ex.code) + ": " + ex.message)
-
-                try:
-                    completePath = os.path.join(assistant_path, "workspace_" + id + ".json")
-                    workspace_file = open(completePath, "w")
+                    skillPath = os.path.join(base_directory, space['name'] + ".json")
+                    workspace_file = open(skillPath, "w")
                     workspace_file.write(json.dumps(workspace_response))
                     workspace_file.close()
 
-                    intents = intents_response['intents']
-                    intentsCSV = ''
-                    for intent in intents:
-                        intent_name = intent['intent']
-                        for example in intent['examples']:
-                            intentsCSV += example['text'] + ',' + intent_name + '\n'
+                    log_response = assistant_service.list_logs(
+                        workspace_id=space['workspace_id']
+                    ).get_result()
 
-                    completePath = os.path.join(assistant_path, "intents_" + id + ".csv")
-                    intents_file = open(completePath, "w")
-                    intents_file.write(intentsCSV)
-                    intents_file.close()
+                    logPath = os.path.join(base_directory, space['name'] + "_logs.json")
+                    workspace_file = open(logPath, "w")
+                    workspace_file.write(json.dumps(log_response))
+                    workspace_file.close()
 
-                    entities = entities_response['entities']
-                    entitiesCSV = ''
-                    for entity in entities:
-                        entity_name = entity['entity']
-                        for value in entity['values']:
-                            entitiesCSV += entity_name + ','
-                            entitiesCSV += value['value'] + ','
-                            if value['type'] == 'synonyms':
-                                if len(value['synonyms']) > 0:
-                                    for synonym in value['synonyms']:
-                                        entitiesCSV += synonym + ','
-                            if value['type'] == 'patterns':
-                                entitiesCSV += '/' + value['patterns'][0] + '/'
-                            entitiesCSV = entitiesCSV.rstrip(',')
-                            entitiesCSV += '\n'
-
-                    completePath = os.path.join(assistant_path, "entities_" + id + ".csv")
-                    entities_file = open(completePath, "w")
-                    entities_file.write(entitiesCSV)
-                    entities_file.close()
-
-                    print("Workspace/Skill " + id + " done.")
-                except Exception as e:
-                    print("Exception occured: " + e.message)
+                    print(space['name'] + " downloaded ✅")
+                    print()
+                except (ApiException, Exception) as ex:
+                    print(space['name'] + " backup failed. " + str(ex.code) + ": " + ex.message)
 
             end_time = time.time()
             elapsed = end_time - start_time
